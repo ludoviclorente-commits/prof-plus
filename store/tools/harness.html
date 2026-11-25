@@ -1,0 +1,13 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Prof+ demo</title>
+<style>html,body{margin:0;height:100%}</style></head><body>
+<script src="../../extension/src/iprof.js"></script>
+<script src="../../extension/src/ui.js"></script>
+<script src="demo-data.js"></script>
+<script>
+  const host = document.createElement("div"); host.style.cssText = "position:fixed;inset:0";
+  const sh = host.attachShadow({mode:"open"});
+  sh.innerHTML = '<link rel="stylesheet" href="../../extension/src/styles.css"><div class="ipp-app"></div>';
+  document.body.appendChild(host);
+  const app = new IPP.App(sh, { onOriginal(){}, onQuit(){} });
+  app.state.data = DEMO; app.render(); window.app = app;
+</script></body></html>

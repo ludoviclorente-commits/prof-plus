@@ -24,10 +24,12 @@ Le bouton **« Interface d'origine »** vous ramène à tout moment à I-Prof te
 - **Une seule exception :** ouvrir un message dans Prof+ le marque comme lu, exactement comme dans I-Prof.
 - Prof+ ne connaît pas vos identifiants : vous vous connectez normalement via ARENA.
 
-## Installer (version de test)
+## Installer
 
-### Chrome, Edge, Brave
-1. Téléchargez ce dossier (ou le dossier `extension`).
+**Chrome, Edge, Brave : [Prof+ sur le Chrome Web Store](https://chromewebstore.google.com/detail/lbbgoecljifmniomlpfmlmhabgkjelcb)** (installation en un clic, mises à jour automatiques).
+
+### Installer depuis le code (développeurs)
+1. Téléchargez ce dépôt (ou le dossier `extension`).
 2. Ouvrez `chrome://extensions` (ou `edge://extensions`).
 3. Activez le **Mode développeur** (en haut à droite).
 4. Cliquez sur **Charger l'extension non empaquetée** et choisissez le dossier `extension`.
@@ -61,8 +63,17 @@ SPEC.md              Fiche technique : carte des écrans I-Prof, choix d'archite
 - [ ] Tester dans d'autres académies et dans le 2nd degré
 - [ ] Fichiers d'exemple anonymisés + tests automatiques des parseurs
 - [ ] Écran « Infos personnelles » (lecture seule)
-- [ ] Publication sur le Chrome Web Store et sur addons.mozilla.org
+- [x] Publication sur le Chrome Web Store (non répertoriée, phase de test)
+- [ ] Publication sur addons.mozilla.org (Firefox)
 - [x] Nom : « Prof+ » (sans « iProf », pour éviter toute confusion avec l’outil officiel)
+
+## Signaler un problème
+
+Ouvrez une [issue](../../issues) en précisant votre académie et votre degré (1er / 2nd), avec une capture d'écran **sans données personnelles**, ou écrivez à ludoviclorente@gmail.com.
+
+## Confidentialité
+
+Politique complète : [`docs/index.html`](docs/index.html) (publiée via GitHub Pages).
 
 ## Licence
 

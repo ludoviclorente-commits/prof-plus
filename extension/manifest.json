@@ -1,0 +1,95 @@
+{
+  "manifest_version": 3,
+  "name": "Prof+ — une interface claire pour I-Prof",
+  "short_name": "Prof+",
+  "version": "0.1.0",
+  "description": "Rend I-Prof lisible : tableau de bord, courrier, parcours. 100 % local, aucune donnée envoyée. Outil indépendant, non officiel.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.ac-aix-marseille.fr/iprof/servletiprof*",
+        "https://*.ac-amiens.fr/iprof/servletiprof*",
+        "https://*.ac-besancon.fr/iprof/servletiprof*",
+        "https://*.ac-bordeaux.fr/iprof/servletiprof*",
+        "https://*.ac-clermont.fr/iprof/servletiprof*",
+        "https://*.ac-corse.fr/iprof/servletiprof*",
+        "https://*.ac-creteil.fr/iprof/servletiprof*",
+        "https://*.ac-dijon.fr/iprof/servletiprof*",
+        "https://*.ac-grenoble.fr/iprof/servletiprof*",
+        "https://*.ac-guadeloupe.fr/iprof/servletiprof*",
+        "https://*.ac-guyane.fr/iprof/servletiprof*",
+        "https://*.ac-lille.fr/iprof/servletiprof*",
+        "https://*.ac-limoges.fr/iprof/servletiprof*",
+        "https://*.ac-lyon.fr/iprof/servletiprof*",
+        "https://*.ac-martinique.fr/iprof/servletiprof*",
+        "https://*.ac-mayotte.fr/iprof/servletiprof*",
+        "https://*.ac-montpellier.fr/iprof/servletiprof*",
+        "https://*.ac-nancy-metz.fr/iprof/servletiprof*",
+        "https://*.ac-nantes.fr/iprof/servletiprof*",
+        "https://*.ac-nice.fr/iprof/servletiprof*",
+        "https://*.ac-normandie.fr/iprof/servletiprof*",
+        "https://*.ac-orleans-tours.fr/iprof/servletiprof*",
+        "https://*.ac-paris.fr/iprof/servletiprof*",
+        "https://*.ac-poitiers.fr/iprof/servletiprof*",
+        "https://*.ac-reims.fr/iprof/servletiprof*",
+        "https://*.ac-rennes.fr/iprof/servletiprof*",
+        "https://*.ac-reunion.fr/iprof/servletiprof*",
+        "https://*.ac-strasbourg.fr/iprof/servletiprof*",
+        "https://*.ac-toulouse.fr/iprof/servletiprof*",
+        "https://*.ac-versailles.fr/iprof/servletiprof*"
+      ],
+      "js": [
+        "src/iprof.js",
+        "src/ui.js",
+        "src/content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "src/styles.css"
+      ],
+      "matches": [
+        "https://*.ac-aix-marseille.fr/*",
+        "https://*.ac-amiens.fr/*",
+        "https://*.ac-besancon.fr/*",
+        "https://*.ac-bordeaux.fr/*",
+        "https://*.ac-clermont.fr/*",
+        "https://*.ac-corse.fr/*",
+        "https://*.ac-creteil.fr/*",
+        "https://*.ac-dijon.fr/*",
+        "https://*.ac-grenoble.fr/*",
+        "https://*.ac-guadeloupe.fr/*",
+        "https://*.ac-guyane.fr/*",
+        "https://*.ac-lille.fr/*",
+        "https://*.ac-limoges.fr/*",
+        "https://*.ac-lyon.fr/*",
+        "https://*.ac-martinique.fr/*",
+        "https://*.ac-mayotte.fr/*",
+        "https://*.ac-montpellier.fr/*",
+        "https://*.ac-nancy-metz.fr/*",
+        "https://*.ac-nantes.fr/*",
+        "https://*.ac-nice.fr/*",
+        "https://*.ac-normandie.fr/*",
+        "https://*.ac-orleans-tours.fr/*",
+        "https://*.ac-paris.fr/*",
+        "https://*.ac-poitiers.fr/*",
+        "https://*.ac-reims.fr/*",
+        "https://*.ac-rennes.fr/*",
+        "https://*.ac-reunion.fr/*",
+        "https://*.ac-strasbourg.fr/*",
+        "https://*.ac-toulouse.fr/*",
+        "https://*.ac-versailles.fr/*"
+      ]
+    }
+  ]
+}
