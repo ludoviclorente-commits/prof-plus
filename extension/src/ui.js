@@ -107,7 +107,7 @@
 
     loadCore() {
       this.load("synth", async () => IPP.parseSynthese(await IPP.page("Dossier")));
-      this.load("courrier", () => IPP.loadCourrier("tous"));
+      this.load("courrier", () => IPP.loadCourrier());
       this.load("promo", async () => IPP.parsePromotions(await IPP.page("Perspectives_Promotions")));
       this.load("anc", async () => IPP.parseAnciennete(await IPP.page("Dossier_Anciennete")));
       this.load("pres", async () => IPP.parsePresentation(await IPP.page("Presentation")));
@@ -146,7 +146,7 @@
       else if (a === "original") { e.preventDefault(); this.opts.onOriginal(el.dataset.code || "Presentation"); }
       else if (a === "quit") { e.preventDefault(); this.opts.onQuit(); }
       else if (a === "refresh") this.refresh();
-      else if (a === "reload-courrier") { delete this.state.data.courrier; this.load("courrier", () => IPP.loadCourrier("tous")); }
+      else if (a === "reload-courrier") { delete this.state.data.courrier; this.load("courrier", () => IPP.loadCourrier()); }
       else if (a === "theme") { this.state.filtre.theme = el.dataset.theme; this.state.filtre.max = 60; this.render(); }
       else if (a === "nonlus") { this.state.filtre.nonLus = !this.state.filtre.nonLus; this.render(); }
       else if (a === "more") { this.state.filtre.max += 100; this.render(); }

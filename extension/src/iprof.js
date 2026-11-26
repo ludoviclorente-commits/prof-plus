@@ -210,19 +210,32 @@
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-  IPP.loadCourrier = async (theme = "tous") => {
-    // Juste après la connexion, I-Prof renvoie parfois une boîte vide : on réessaie avant de conclure.
-    let res;
-    for (let essai = 0; essai < 3; essai++) {
-      const doc = await IPP.page("CourrierE", { typeDossier: "recu", codeThemeEnCours: theme });
-      res = IPP.parseCourrier(doc);
-      const nonLus = Object.values(res.nonLus).reduce((a, b) => a + b, 0);
-      const vraimentVide = /Aucun message/i.test(doc.body ? doc.body.textContent : "") && !nonLus;
-      if (res.messages.length || vraimentVide) return res;
-      await sleep(800 * (essai + 1));
+  /**
+   * Charge toute la boîte de réception.
+   * On ne se fie pas au filtre « tous » d'I-Prof : juste après la connexion, il renvoie une liste vide.
+   * On charge donc chaque thème séparément (après une première consultation qui « réveille » la boîte),
+   * puis on fusionne sans doublon.
+   */
+  IPP.loadCourrier = async () => {
+    const warm = IPP.parseCourrier(await IPP.page("CourrierE"));
+    const byId = new Map();
+    let nonLus = warm.nonLus;
+    const add = (list) => list.forEach((m) => { const k = m.id || m.objet + m.date; if (!byId.has(k)) byId.set(k, m); });
+    add(warm.messages);
+    for (const theme of Object.keys(IPP.THEMES)) {
+      let res = IPP.parseCourrier(await IPP.page("CourrierE", { typeDossier: "recu", codeThemeEnCours: theme }));
+      const attendus = res.nonLus[IPP.THEMES[theme]] || 0;
+      if (!res.messages.length && attendus) {
+        await sleep(800); // boîte pas encore prête : on réessaie une fois
+        res = IPP.parseCourrier(await IPP.page("CourrierE", { typeDossier: "recu", codeThemeEnCours: theme }));
+      }
+      if (Object.keys(res.nonLus).length) nonLus = res.nonLus;
+      add(res.messages);
     }
-    return res;
+    const messages = [...byId.values()].sort((a, b) => (b.d ? b.d.getTime() : 0) - (a.d ? a.d.getTime() : 0));
+    return { nonLus, messages };
   };
+
 
   /** ATTENTION : marque le message comme lu dans I-Prof. Appeler uniquement sur clic. */
   IPP.loadMessage = async (msg) => {
