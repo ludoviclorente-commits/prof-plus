@@ -65,6 +65,24 @@
       .filter((cells) => cells.some(Boolean));
 
   const DATE = /(\d{2})\/(\d{2})\/(\d{4})/;
+  /**
+   * Date + heure d'un message I-Prof. Gère « JJ/MM/AAAA HH:MM », « JJ/MM/AA », « JJ/MM » (année en cours),
+   * « HH:MM » seul (aujourd'hui), « Aujourd'hui » et « Hier ».
+   */
+  IPP.parseDateTime = (s) => {
+    s = (s || "").trim();
+    const time = s.match(/(\d{1,2})[:h](\d{2})/);
+    const h = time ? +time[1] : 0, mi = time ? +time[2] : 0;
+    let m = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+    if (m) { let y = +m[3]; if (y < 100) y += 2000; return new Date(y, +m[2] - 1, +m[1], h, mi); }
+    const now = new Date();
+    m = s.match(/(\d{1,2})\/(\d{1,2})(?!\/)/);
+    if (m) { const d = new Date(now.getFullYear(), +m[2] - 1, +m[1], h, mi); if (d - now > 864e5) d.setFullYear(d.getFullYear() - 1); return d; }
+    if (/hier/i.test(s)) { const d = new Date(now); d.setDate(d.getDate() - 1); d.setHours(h, mi, 0, 0); return d; }
+    if (time || /aujourd/i.test(s)) { const d = new Date(now); d.setHours(h, mi, 0, 0); return d; }
+    return null;
+  };
+
   IPP.parseDate = (s) => {
     const m = (s || "").match(DATE);
     return m ? new Date(+m[3], +m[2] - 1, +m[1]) : null;
@@ -172,14 +190,16 @@
       const on = a.getAttribute("onclick");
       const tr = a.closest("tr");
       const objet = txt(a.textContent);
-      const date = txt(tr && tr.querySelector("td.texte") ? tr.querySelector("td.texte").textContent : "");
+      // La date est dans une cellule à part ; sa classe varie (texte, texteBold pour les non-lus…) : on la cherche par son contenu.
+      const dateCell = tr ? [...tr.querySelectorAll("td")].reverse().find((td) => !td.contains(a) && /\d{1,2}\/\d{1,2}|\d{1,2}:\d{2}|hier|aujourd/i.test(td.textContent)) : null;
+      const date = txt(dateCell ? dateCell.textContent : "");
       return {
         id: param(on, "messageID"),
         dossier: param(on, "dossier"),
         theme: param(on, "codeTheme"),
         objet,
         date,
-        d: IPP.parseDate(date),
+        d: IPP.parseDateTime(date),
         nonLu: !!a.querySelector(".texteBoldSouligne"),
         pj: !!(tr && tr.querySelector('img[alt*="pi"]')),
         signale: /^\[signal/i.test(objet),

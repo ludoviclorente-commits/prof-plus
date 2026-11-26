@@ -10,6 +10,15 @@
 
   const today = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
   const days = (d) => Math.round((d - today()) / 864e5);
+  const fmtMsgDate = (d) => {
+    if (!d) return "";
+    const t = today();
+    const day = new Date(d); day.setHours(0, 0, 0, 0);
+    const diff = Math.round((t - day) / 864e5);
+    if (diff === 0) return d.getHours() || d.getMinutes() ? d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "aujourd'hui";
+    if (diff === 1) return "hier";
+    return fmtDate(d);
+  };
   const fmtDate = (d, withYear) =>
     d ? d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", ...(withYear || d.getFullYear() !== new Date().getFullYear() ? { year: "numeric" } : {}) }) : "";
   const fmtLong = (d) => d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -49,6 +58,15 @@
     // fonctions : on garde la plus récente de chaque intitulé
     out.forEach((l) => { const seen = new Set(); l.fonctions = l.fonctions.filter((f) => { const k = f.fonction + f.principale; if (seen.has(k)) return false; seen.add(k); return true; }); });
     return out;
+  };
+
+  /** Tri du courrier : plus récent d'abord ; sans date lisible, on garde l'ordre d'I-Prof (déjà du plus récent au plus ancien). */
+  const byDateDesc = (a, b) => {
+    const da = a[0].d ? a[0].d.getTime() : null, db = b[0].d ? b[0].d.getTime() : null;
+    if (da != null && db != null && da !== db) return db - da;
+    if (da == null && db != null) return -1; // date illisible = sans doute « aujourd'hui » : en haut
+    if (db == null && da != null) return 1;
+    return a[1] - b[1];
   };
 
   const VIEWS = [
@@ -113,10 +131,9 @@
 
     go(view) {
       this.state.view = view;
+      this._resetScroll = true;
       this.loadFor(view);
       this.render();
-      const main = this.root.querySelector(".main");
-      if (main) main.scrollTop = 0;
     }
 
     /* ---------- événements ---------- */
@@ -143,10 +160,7 @@
       if (e.target.matches("[data-filter=q]")) {
         this.state.filtre.q = e.target.value;
         this.state.filtre.max = 60;
-        const pos = e.target.selectionStart;
         this.render();
-        const inp = this.root.querySelector("[data-filter=q]");
-        if (inp) { inp.focus(); inp.setSelectionRange(pos, pos); }
       }
     }
 
@@ -192,6 +206,13 @@
       const c = s.data.courrier;
       const unread = c ? Object.values(c.nonLus).reduce((a, b) => a + b, 0) : 0;
       const sessionLost = Object.values(s.errors).includes("session");
+      // Conserver la position de défilement et le focus d'un rendu à l'autre
+      // (sinon chaque chargement en arrière-plan ou changement de filtre fait sauter la page).
+      const prevMain = this.root.querySelector(".main");
+      const prevScroll = prevMain && !this._resetScroll ? prevMain.scrollTop : 0;
+      const prevFocus = this.root.activeElement && this.root.activeElement.matches("[data-filter=q]") ? this.root.activeElement : null;
+      const selStart = prevFocus ? prevFocus.selectionStart : null;
+      this._resetScroll = false;
       this.root.querySelector(".ipp-app").innerHTML = `
         <nav class="side" aria-label="Navigation Prof+">
           <div class="brand"><div class="logo">P+</div><div><div class="brand-name">Prof+</div><div class="brand-sub">Outil indépendant, non officiel</div></div></div>
@@ -209,6 +230,12 @@
           ${this["v_" + s.view]()}
         </main>
         ${s.msg ? this.modal() : ""}`;
+      const main = this.root.querySelector(".main");
+      if (main) main.scrollTop = prevScroll;
+      if (prevFocus) {
+        const inp = this.root.querySelector("[data-filter=q]");
+        if (inp) { inp.focus(); if (selStart != null) inp.setSelectionRange(selStart, selStart); }
+      }
     }
 
     box(key, inner) {
@@ -279,7 +306,7 @@
           <section class="card grow2">
             <div class="row-between"><h2>Courrier${this.state.data.courrier ? " · " + plural(Object.values(this.state.data.courrier.nonLus).reduce((a, b) => a + b, 0), "non lu") : ""}</h2>
             <button class="link-btn inline" data-action="go" data-view="courrier">Tout voir →</button></div>
-            ${this.box("courrier", (c) => this.msgList(c.messages.map((m, i) => [m, i]).sort((a, b) => (b[0].d || 0) - (a[0].d || 0)).slice(0, 7)))}
+            ${this.box("courrier", (c) => this.msgList(c.messages.map((m, i) => [m, i]).sort(byDateDesc).slice(0, 7)))}
           </section>
           <div class="col">
             <section class="card">
@@ -304,7 +331,7 @@
           ${m.signale ? `<span class="tag hot">Signalé</span>` : ""}
           ${m.pj ? `<span class="pj" title="Pièce jointe">${icon("clip", 15)}<span class="sr">Pièce jointe</span></span>` : ""}
           <span class="tag">${esc(IPP.THEMES[m.theme] || "")}</span>
-          <span class="date">${esc(fmtDate(m.d))}</span>
+          <span class="date">${esc(fmtMsgDate(m.d))}</span>
         </button></li>`).join("")}</ul>`;
     }
 
@@ -322,7 +349,7 @@
           if (f.theme !== "tous") list = list.filter(([m]) => m.theme === f.theme);
           if (f.nonLus) list = list.filter(([m]) => m.nonLu);
           if (q) list = list.filter(([m]) => m.objet.toLowerCase().includes(q));
-          list.sort((a, b) => (b[0].d || 0) - (a[0].d || 0));
+          list.sort(byDateDesc);
           const shown = list.slice(0, f.max);
           return `
           <section class="card">

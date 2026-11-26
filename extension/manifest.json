@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Prof+ — une interface claire pour I-Prof",
   "short_name": "Prof+",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Rend I-Prof lisible : tableau de bord, courrier, parcours. 100 % local, aucune donnée envoyée. Outil indépendant, non officiel.",
   "icons": {
     "16": "icons/icon16.png",
